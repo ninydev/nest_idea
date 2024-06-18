@@ -1,0 +1,26 @@
+version: '3.1'
+
+services:
+
+  nestjs.test.db:
+    image: mysql:latest
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: nestjs
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - ./volumes/db:/var/lib/mysql
+
+  nestjs.test.phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+
+volumes:
+  wordpress:
+  db:
