@@ -5,12 +5,15 @@ import * as bcrypt from 'bcryptjs';
 
 import { UserModel } from '../users/user.entity';
 import { AuthRegisterDto } from './dto/auth-register.dto';
+import {EventService} from "../events/event.service";
+import {UserRegisteredEvent} from "./events/user-registered.event";
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private eventService: EventService
   ) {}
 
   async signIn(
@@ -18,6 +21,8 @@ export class AuthService {
     password: string,
   ): Promise<{ accessToken: string }> {
     const user = await this.usersService.findOneBy({ email });
+
+    this.eventService.emitEvent('user.registered', new UserRegisteredEvent(user));
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');

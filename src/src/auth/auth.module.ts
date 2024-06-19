@@ -4,6 +4,9 @@ import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { jwtConstants } from './constants';
+import {SendEmailService} from "../notifications/email/send-email.service";
+import {EventService} from "../events/event.service";
+import {UserRegisteredListener} from "./listeners/user-registered.listener";
 
 @Module({
   imports: [
@@ -14,7 +17,7 @@ import { jwtConstants } from './constants';
       signOptions: { expiresIn: '60s' },
     }),
   ],
-  providers: [AuthService],
+  providers: [AuthService, SendEmailService, EventService, UserRegisteredListener],
   controllers: [AuthController],
   exports: [AuthService],
 })
