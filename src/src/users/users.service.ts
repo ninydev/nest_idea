@@ -1,22 +1,26 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserModel } from './user.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-
   constructor(
     @InjectRepository(UserModel)
     private usersRepository: Repository<UserModel>,
-  ) {
-  }
+  ) {}
 
   async findAll(): Promise<UserModel[]> {
     return await this.usersRepository.find();
   }
 
-  async findOneBy(where: FindOptionsWhere<UserModel> | FindOptionsWhere<UserModel>[]): Promise<UserModel | null> {
+  async findOneBy(
+    where: FindOptionsWhere<UserModel> | FindOptionsWhere<UserModel>[],
+  ): Promise<UserModel | null> {
     const user = await this.usersRepository.findOneBy(where);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -25,11 +29,25 @@ export class UsersService {
   }
 
   async create(user: Partial<UserModel>): Promise<UserModel> {
+    const { email } = user;
+
+    // Проверяем, существует ли пользователь с таким email
+    const existingUser = await this.usersRepository.findOne({
+      where: { email },
+    });
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    // Создаем нового пользователя и сохраняем его
     const newUser = this.usersRepository.create(user);
     return this.usersRepository.save(newUser);
   }
 
-  async update(id: number, updateUserDto: Partial<UserModel>): Promise<UserModel> {
+  async update(
+    id: number,
+    updateUserDto: Partial<UserModel>,
+  ): Promise<UserModel> {
     const user = await this.usersRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException('User not found');

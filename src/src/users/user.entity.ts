@@ -1,4 +1,3 @@
-
 import {
   Entity,
   Column,
@@ -11,12 +10,11 @@ import {
 import * as bcrypt from 'bcryptjs';
 
 @Entity('users')
-
 export class UserModel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({length: 50 })
+  @Column({ length: 50 })
   name: string;
 
   @Column({ unique: true })
